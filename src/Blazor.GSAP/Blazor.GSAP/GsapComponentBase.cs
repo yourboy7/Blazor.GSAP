@@ -63,7 +63,7 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
     /// It guarantees that both the GSAP core and the current component's module (<see cref="JSModule"/>) are available, preventing potential null reference errors during JS interop.
     /// </para>
     /// </remarks>
-    protected abstract Task OnGsapLoadedAsync();
+    protected virtual Task OnGsapLoadedAsync() => Task.CompletedTask;
 
     /// <summary>
     /// Automatically calculate the JS path corresponding to the current component
