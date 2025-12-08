@@ -1,6 +1,6 @@
 # ⚡ Blazor.GSAP
 
-[![NuGet](https://img.shields.io/nuget/v/Blazor.GSAP.svg)](https://www.nuget.org/packages/Blazor.GSAP)[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![NuGet downloads](https://img.shields.io/nuget/dt/Blazor.GSAP.svg)](https://www.nuget.org/packages/Blazor.GSAP)
+[![NuGet](https://img.shields.io/nuget/v/Blazor.GSAP.svg)](https://www.nuget.org/packages/Blazor.GSAP)[![NuGet downloads](https://img.shields.io/nuget/dt/Blazor.GSAP.svg)](https://www.nuget.org/packages/Blazor.GSAP)[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![.NET Support](https://img.shields.io/badge/.NET-6.0%20%7C%208.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet)](https://www.nuget.org/packages/Blazor.GSAP)
 
 > **A lightweight, zero-boilerplate Blazor wrapper for GSAP (GreenSock Animation Platform).**
 
