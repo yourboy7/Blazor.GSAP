@@ -3,16 +3,22 @@ using Microsoft.JSInterop;
 
 namespace Blazor.GSAP;
 
-// Inherit from ComponentBase and implement IAsyncDisposable
+/// <summary>
+/// Inherit from ComponentBase and implement IAsyncDisposable
+/// </summary>
 public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
 {
     [Inject] protected IJSRuntime JS { get; set; } = default!;
 
-    // Core interop module (refers to the gsap-core.js mentioned above)
-    private IJSObjectReference? _coreModule;
+    /// <summary>
+    /// GSAP Core interop module (refers to the gsap-core.js mentioned above)
+    /// </summary>
+    private IJSObjectReference? _gsapCoreModule;
 
-    // The business logic module specific to the current page (e.g., Home.razor.js)
-    protected IJSObjectReference? PageModule { get; private set; }
+    /// <summary>
+    /// The business logic module specific to the current page (e.g., Home.razor.js)
+    /// </summary>
+    private IJSObjectReference? _jsModule;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -21,23 +27,23 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
             try
             {
                 // 1. Load the core module from the RCL
-                _coreModule = await JS.InvokeAsync<IJSObjectReference>(
+                _gsapCoreModule = await JS.InvokeAsync<IJSObjectReference>(
                     "import",
                     "./_content/Blazor.GSAP/js/gsap-core.js" // Fixed RCL path format
                 );
 
                 // 2. Ensure the GSAP library is loaded and ready
-                await _coreModule.InvokeVoidAsync("initGsap");
+                await _gsapCoreModule.InvokeVoidAsync("initGsap");
 
                 // 3. Automatically load the JS for the current page (Collocated JS)
                 // Convention: A [ComponentName].razor.js file must exist in the same directory.
-                var pageJsPath = $"./{GetJsPath()}";
-                PageModule = await JS.InvokeAsync<IJSObjectReference>("import", pageJsPath);
+                var jsModulePath = $"./{GetJsModulePath()}";
+                _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", jsModulePath);
 
                 // 4. Trigger initialization logic in the subclass
-                await OnGsapLoadedAsync();
+                await OnGsapLoadedAsync(_jsModule);
             }
-            catch (JSException ex)
+            catch (JSException ex)    
             {
                 Console.WriteLine($"GSAP Init Error: {ex.Message}");
             }
@@ -45,15 +51,29 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    // This is a hook method. Subclasses should override this to execute animations, replacing OnAfterRenderAsync.
-    protected virtual Task OnGsapLoadedAsync()
-    {
-        return Task.CompletedTask;
-    }
+    /// <summary>
+    /// Lifecycle hook invoked after the GSAP core library and the component-specific JavaScript module have been successfully loaded and initialized.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>Override this method to implement your GSAP animation logic.</strong>
+    /// </para>
+    /// <para>
+    /// This method is intended to be used instead of <see cref="OnAfterRenderAsync(bool)"/> for animation initialization.
+    /// It guarantees that both the GSAP core and the current component's module (<paramref name="jsModule"/>) are available, preventing potential null reference errors during JS interop.
+    /// </para>
+    /// </remarks>
+    /// <param name="jsModule">
+    /// A reference to the component-specific JavaScript module (typically corresponding to <c>ComponentName.razor.js</c>).
+    /// Use this object to invoke functions exported from your collocated JavaScript file.
+    /// </param>
+    protected abstract Task OnGsapLoadedAsync(IJSObjectReference jsModule);
 
-    // Automatically calculate the JS path corresponding to the current component
-    // For example, if your page is at Pages/Home.razor, it attempts to load Pages/Home.razor.js
-    private string GetJsPath()
+    /// <summary>
+    /// Automatically calculate the JS path corresponding to the current component
+    /// For example, if your page is at Pages/Home.razor, it attempts to load Pages/Home.razor.js
+    /// </summary>
+    private string GetJsModulePath()
     {
         // Get the specific type of the current component, e.g., "MauiApp1.Components.Pages.Home"
         // Blazor's JS Collocation path is usually relative to wwwroot, like ./Components/Pages/Home.razor.js
@@ -67,19 +87,19 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_coreModule is not null)
+        if (_gsapCoreModule is not null)
         {
             // 1. Automatically clean up all GSAP animations
-            await _coreModule.InvokeVoidAsync("killAllGlobal");
+            await _gsapCoreModule.InvokeVoidAsync("killAllGlobal");
 
             // 2. Dispose the core module
-            await _coreModule.DisposeAsync();
+            await _gsapCoreModule.DisposeAsync();
         }
 
-        if (PageModule is not null)
+        if (_jsModule is not null)
         {
             // 3. Dispose the page module
-            await PageModule.DisposeAsync();
+            await _jsModule.DisposeAsync();
         }
 
         GC.SuppressFinalize(this);

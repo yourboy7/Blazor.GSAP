@@ -68,15 +68,24 @@ Inherit from `GsapComponentBase` in your Razor component (`.razor`).
 <div class="box"></div>
 
 @code {
-    // 💡 Override this method instead of OnAfterRenderAsync
-    protected override async Task OnGsapLoadedAsync()
-    {
-        // Safe to call JS here.
-        // PageModule is automatically loaded from Home.razor.js
-        if (PageModule is not null)
-        {
-            await PageModule.InvokeVoidAsync("animateBox");
-        }
+    /// <summary>
+    /// Lifecycle hook invoked after the GSAP core library and the component-specific JavaScript module have been successfully loaded and initialized.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>Override this method to implement your GSAP animation logic.</strong>
+    /// </para>
+    /// <para>
+    /// This method is intended to be used instead of <see cref="GsapComponentBase.OnAfterRenderAsync"/> for animation initialization.
+    /// It guarantees that both the GSAP core and the current component's module (<paramref name="jsModule"/>) are available, preventing potential null reference errors during JS interop.
+    /// </para>
+    /// </remarks>
+    /// <param name="jsModule">
+    /// A reference to the component-specific JavaScript module (typically corresponding to <c>ComponentName.razor.js</c>).
+    /// Use this object to invoke functions exported from your collocated JavaScript file.
+    /// </param>
+    protected override async Task OnGsapLoadedAsync(IJSObjectReference jsModule) {
+        await jsModule.InvokeVoidAsync("animateBox");
     }
 }
 ```
