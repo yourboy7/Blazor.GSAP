@@ -4,13 +4,17 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<Version>1.0.0</Version>
+	<Version>1.0.1</Version>
 	<Authors>yourboy77</Authors>
 	<Company>Freedom</Company>
 	<Copyright>Copyright © 2025 Freedom</Copyright>
-	<Description>A lightweight, zero-boilerplate Blazor wrapper for GSAP (GreenSock Animation Platform). It simplifies JavaScript interoperability by providing a base class that handles dynamic script loading, collocated file import, and automatic resource cleanup. Fully compatible with Blazor Server, WebAssembly, and .NET MAUI Hybrid.</Description>
-	<PackageTags>Blazor;GSAP;GreenSock;Animation;UI;MAUI;Hybrid</PackageTags>
-	<PackageIcon>icon.jpg</PackageIcon>
+	<Description>
+		An unofficial, lightweight, zero-boilerplate Blazor wrapper for GSAP (GreenSock Animation Platform). It simplifies JS interoperability with dynamic script loading.
+
+		Disclaimer: This package is not affiliated with GreenSock. The underlying GSAP library is subject to its own license terms.
+	</Description>
+	<PackageTags>Blazor;GSAP;GreenSock;Animation;UI;MAUI;Hybrid;Unofficial</PackageTags>
+	<PackageIcon>icon.png</PackageIcon>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<RepositoryUrl>https://github.com/yourboy7/Blazor.GSAP</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
@@ -29,7 +33,7 @@
 
   <ItemGroup>
 	  <None Include="..\..\..\README.md" Pack="true" PackagePath="\" />
-	  <None Include="..\..\..\docs\icon.jpg" Pack="true" PackagePath="\" />
+	  <None Include="..\..\..\docs\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

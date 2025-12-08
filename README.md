@@ -65,7 +65,7 @@ Inherit from `GsapComponentBase` in your Razor component (`.razor`).
 @using Blazor.GSAP
 @inherits GsapComponentBase
 
-<div class="box">Hello GSAP 🍌</div>
+<div class="box"></div>
 
 @code {
     // 💡 Override this method instead of OnAfterRenderAsync
@@ -106,4 +106,12 @@ The library uses a smart injection strategy. Instead of standard ES modules (whi
 
 ## 📜 License
 
-MIT
+**The C# source code in this package is licensed under the MIT License.**
+
+> ⚠️ **Important License Notice**
+>
+> This is an **unofficial** wrapper. The underlying **GreenSock Animation Platform (GSAP)** is a proprietary library subject to the [Standard GreenSock License](https://greensock.com/licensing/).
+>
+> While GSAP is free for most use cases, it is **not MIT licensed**. Commercial usage in products sold to multiple customers (e.g., SaaS, templates) may require a "Business Green" license from GreenSock.
+>
+> _This package is not affiliated with or endorsed by GreenSock._
