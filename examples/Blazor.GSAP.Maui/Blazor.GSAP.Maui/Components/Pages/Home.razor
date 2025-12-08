@@ -14,15 +14,11 @@
     /// </para>
     /// <para>
     /// This method is intended to be used instead of <see cref="GsapComponentBase.OnAfterRenderAsync"/> for animation initialization.
-    /// It guarantees that both the GSAP core and the current component's module (<paramref name="jsModule"/>) are available, preventing potential null reference errors during JS interop.
+    /// It guarantees that both the GSAP core and the current component's module (<see cref="GsapComponentBase.JSModule"/>) are available, preventing potential null reference errors during JS interop.
     /// </para>
     /// </remarks>
-    /// <param name="jsModule">
-    /// A reference to the component-specific JavaScript module (typically corresponding to <c>ComponentName.razor.js</c>).
-    /// Use this object to invoke functions exported from your collocated JavaScript file.
-    /// </param>
-    protected override async Task OnGsapLoadedAsync(IJSObjectReference jsModule) {
-        await jsModule.InvokeVoidAsync("animateBox");
+    protected override async Task OnGsapLoadedAsync() {
+        await JSModule.InvokeVoidAsync("animateBox");
     }
 
 }

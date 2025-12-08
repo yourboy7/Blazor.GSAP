@@ -18,7 +18,7 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
     /// <summary>
     /// The business logic module specific to the current page (e.g., Home.razor.js)
     /// </summary>
-    private IJSObjectReference? _jsModule;
+    protected IJSObjectReference JSModule { get; private set; } = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -38,10 +38,10 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
                 // 3. Automatically load the JS for the current page (Collocated JS)
                 // Convention: A [ComponentName].razor.js file must exist in the same directory.
                 var jsModulePath = $"./{GetJsModulePath()}";
-                _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", jsModulePath);
+                JSModule = await JS.InvokeAsync<IJSObjectReference>("import", jsModulePath);
 
                 // 4. Trigger initialization logic in the subclass
-                await OnGsapLoadedAsync(_jsModule);
+                await OnGsapLoadedAsync();
             }
             catch (JSException ex)    
             {
@@ -60,14 +60,10 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
     /// </para>
     /// <para>
     /// This method is intended to be used instead of <see cref="OnAfterRenderAsync(bool)"/> for animation initialization.
-    /// It guarantees that both the GSAP core and the current component's module (<paramref name="jsModule"/>) are available, preventing potential null reference errors during JS interop.
+    /// It guarantees that both the GSAP core and the current component's module (<see cref="JSModule"/>) are available, preventing potential null reference errors during JS interop.
     /// </para>
     /// </remarks>
-    /// <param name="jsModule">
-    /// A reference to the component-specific JavaScript module (typically corresponding to <c>ComponentName.razor.js</c>).
-    /// Use this object to invoke functions exported from your collocated JavaScript file.
-    /// </param>
-    protected abstract Task OnGsapLoadedAsync(IJSObjectReference jsModule);
+    protected abstract Task OnGsapLoadedAsync();
 
     /// <summary>
     /// Automatically calculate the JS path corresponding to the current component
@@ -96,10 +92,10 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
             await _gsapCoreModule.DisposeAsync();
         }
 
-        if (_jsModule is not null)
+        if (JSModule is not null)
         {
             // 3. Dispose the page module
-            await _jsModule.DisposeAsync();
+            await JSModule.DisposeAsync();
         }
 
         GC.SuppressFinalize(this);
