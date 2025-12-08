@@ -83,19 +83,26 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_gsapCoreModule is not null)
-        {
-            // 1. Automatically clean up all GSAP animations
-            await _gsapCoreModule.InvokeVoidAsync("killAllGlobal");
+        try {
+            if (_gsapCoreModule is not null)
+            {
+                // 1. Automatically clean up all GSAP animations
+                await _gsapCoreModule.InvokeVoidAsync("killAllGlobal");
 
-            // 2. Dispose the core module
-            await _gsapCoreModule.DisposeAsync();
-        }
+                // 2. Dispose the core module
+                await _gsapCoreModule.DisposeAsync();
+            }
 
-        if (JSModule is not null)
-        {
-            // 3. Dispose the page module
-            await JSModule.DisposeAsync();
+            if (JSModule is not null)
+            {
+                // 3. Dispose the page module
+                await JSModule.DisposeAsync();
+            }
+        } catch (JSException) {
+            // Ignore JS exceptions.
+            // When the user reloads the page or navigates away, the JavaScript context may already be destroyed.
+            // Attempting to invoke JS methods or dispose JS objects at this point can throw "JS object instance ... does not exist".
+            // Since the browser has already handled the cleanup, it is safe to ignore this error.
         }
 
         GC.SuppressFinalize(this);

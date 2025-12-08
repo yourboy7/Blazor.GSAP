@@ -4,17 +4,15 @@
     <TargetFrameworks>net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<Version>1.0.7</Version>
+	<Version>1.0.8</Version>
 	<Authors>yourboy77</Authors>
 	<Company>Freedom</Company>
 	<Copyright>Copyright © 2025 Freedom</Copyright>
-	<Description>
-		🚀 Fully compatible with .NET 6, .NET 8, .NET 9, and .NET 10.
+	<Description>An unofficial, lightweight, zero-boilerplate Blazor wrapper for GSAP (GreenSock Animation Platform). It simplifies JS interoperability with dynamic script loading.
 
-		An unofficial, lightweight, zero-boilerplate Blazor wrapper for GSAP (GreenSock Animation Platform). It simplifies JS interoperability with dynamic script loading.
+🚀 Fully compatible with .NET 6, .NET 8, .NET 9, and .NET 10.
 
-		Disclaimer: This package is not affiliated with GreenSock. The underlying GSAP library is subject to its own license terms.
-	</Description>
+Disclaimer: This package is not affiliated with GreenSock. The underlying GSAP library is subject to its own license terms.</Description>
 	<PackageTags>Blazor;GSAP;GreenSock;Animation;UI;MAUI;Hybrid;net6;net8;net9;net10;Unofficial</PackageTags>
 	<PackageIcon>icon.png</PackageIcon>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
