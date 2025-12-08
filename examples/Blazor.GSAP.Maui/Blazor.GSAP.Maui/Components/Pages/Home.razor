@@ -1,0 +1,16 @@
+﻿@page "/"
+@inherits GsapComponentBase
+
+<div class="box"></div>
+
+@code {
+
+    protected override async Task OnGsapLoadedAsync() {
+        if (PageModule is not null) {
+            await PageModule.InvokeVoidAsync("animateBox");
+        }
+
+        await base.OnGsapLoadedAsync();
+    }
+
+}

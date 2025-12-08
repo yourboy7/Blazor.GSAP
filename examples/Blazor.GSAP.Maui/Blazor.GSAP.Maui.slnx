@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../../src/Blazor.GSAP/Blazor.GSAP/Blazor.GSAP.csproj" />
+  <Project Path="Blazor.GSAP.Maui/Blazor.GSAP.Maui.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>
