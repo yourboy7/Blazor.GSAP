@@ -46,8 +46,8 @@ Create a JavaScript file with the **same name** as your component in the same di
 export function animateBox() {
   // ✅ Use gsap directly. The base class ensures it is loaded.
   gsap.to(".box", {
-    rotation: 360,
-    duration: 2,
+    rotation: +360,
+    duration: 1,
     repeat: -1,
     ease: "none",
   });

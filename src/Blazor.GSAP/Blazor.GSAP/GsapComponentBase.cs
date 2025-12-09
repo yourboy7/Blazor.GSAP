@@ -20,12 +20,20 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
     /// </summary>
     protected IJSObjectReference JSModule { get; private set; } = default!;
 
+    /// <summary>
+    /// Define the list of plugins required for this component.
+    /// Returning an array, for example: [ GsapPlugins.ScrollTrigger, GsapPlugins.Draggable ]
+    /// </summary>
+    protected virtual GsapPlugin[] RequiredPlugins => Array.Empty<GsapPlugin>();
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             try
             {
+                var pluginsToLoad = GetPluginFilenames(RequiredPlugins);
+
                 // 1. Load the core module from the RCL
                 _gsapCoreModule = await JS.InvokeAsync<IJSObjectReference>(
                     "import",
@@ -33,7 +41,7 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
                 );
 
                 // 2. Ensure the GSAP library is loaded and ready
-                await _gsapCoreModule.InvokeVoidAsync("initGsap");
+                await _gsapCoreModule.InvokeVoidAsync("initGsap", pluginsToLoad);
 
                 // 3. Automatically load the JS for the current page (Collocated JS)
                 // Convention: A [ComponentName].razor.js file must exist in the same directory.
@@ -79,6 +87,89 @@ public abstract class GsapComponentBase : ComponentBase, IAsyncDisposable
         // Simple strategy: Directly return the current component name + .razor.js
         // Note: This requires using relative paths or Blazor's standard isolated JS paths when referencing JS.
         return $"./Components/Pages/{GetType().Name}.razor.js";
+    }
+
+    /// <summary>
+    /// Convert the enumeration array into a list of filename strings.
+    /// </summary>
+    private List<string> GetPluginFilenames(GsapPlugin[] plugins)
+    {
+        // Use HashSet to automatically remove duplicates and prevent the same JS file from being loaded repeatedly.
+        var uniqueFilenames = new HashSet<string>();
+
+        foreach (var plugin in plugins)
+        {
+            switch (plugin)
+            {
+                // ==========================================
+                // 1. Complex dependency handling
+                // ==========================================
+
+                // Rule 1: ScrollSmoother requires ScrollTrigger
+                case GsapPlugin.ScrollSmoother:
+                    uniqueFilenames.Add("ScrollSmoother.min.js");
+                    uniqueFilenames.Add("ScrollTrigger.min.js");
+                    break;
+
+                // Rule 3: CustomBounce requires CustomEase
+                case GsapPlugin.CustomBounce:
+                    uniqueFilenames.Add("CustomBounce.min.js");
+                    uniqueFilenames.Add("CustomEase.min.js");
+                    break;
+
+                // Rule 4: CustomWiggle requires CustomEase
+                case GsapPlugin.CustomWiggle:
+                    uniqueFilenames.Add("CustomWiggle.min.js");
+                    uniqueFilenames.Add("CustomEase.min.js");
+                    break;
+
+                // ==========================================
+                // 2. Bundles file processing
+                // ==========================================
+
+                // Rule 2: RoughEase, ExpoScaleEase, SlowMo -> EasePack.min.js
+                case GsapPlugin.RoughEase:
+                case GsapPlugin.ExpoScaleEase:
+                case GsapPlugin.SlowMo:
+                    uniqueFilenames.Add("EasePack.min.js");
+                    break;
+
+                // ==========================================
+                // 3. Standard mapping
+                // ==========================================
+
+                // Files without the "Plugin" extension
+                case GsapPlugin.Draggable: uniqueFilenames.Add("Draggable.min.js"); break;
+                case GsapPlugin.Flip: uniqueFilenames.Add("Flip.min.js"); break;
+                case GsapPlugin.Observer: uniqueFilenames.Add("Observer.min.js"); break;
+                case GsapPlugin.ScrollTrigger: uniqueFilenames.Add("ScrollTrigger.min.js"); break;
+                case GsapPlugin.SplitText: uniqueFilenames.Add("SplitText.min.js"); break;
+                case GsapPlugin.GSDevTools: uniqueFilenames.Add("GSDevTools.min.js"); break;
+                case GsapPlugin.CustomEase: uniqueFilenames.Add("CustomEase.min.js"); break;
+
+                // Files with the "Plugin" extension
+                case GsapPlugin.DrawSVG: uniqueFilenames.Add("DrawSVGPlugin.min.js"); break;
+                case GsapPlugin.Easel: uniqueFilenames.Add("EaselPlugin.min.js"); break;
+                case GsapPlugin.Inertia: uniqueFilenames.Add("InertiaPlugin.min.js"); break;
+                case GsapPlugin.MotionPath: uniqueFilenames.Add("MotionPathPlugin.min.js"); break;
+                case GsapPlugin.MorphSVG: uniqueFilenames.Add("MorphSVGPlugin.min.js"); break;
+                case GsapPlugin.Physics2D: uniqueFilenames.Add("Physics2DPlugin.min.js"); break;
+                case GsapPlugin.PhysicsProps: uniqueFilenames.Add("PhysicsPropsPlugin.min.js"); break;
+                case GsapPlugin.Pixi: uniqueFilenames.Add("PixiPlugin.min.js"); break;
+                case GsapPlugin.ScrambleText: uniqueFilenames.Add("ScrambleTextPlugin.min.js"); break;
+                case GsapPlugin.ScrollTo: uniqueFilenames.Add("ScrollToPlugin.min.js"); break;
+                case GsapPlugin.Text: uniqueFilenames.Add("TextPlugin.min.js"); break;
+
+                // Special naming
+                case GsapPlugin.MotionPathHelper: uniqueFilenames.Add("MotionPathHelper.min.js"); break;
+
+                default:
+                    // Ignore undefined cases
+                    break;
+            }
+        }
+
+        return uniqueFilenames.ToList();
     }
 
     public async ValueTask DisposeAsync()

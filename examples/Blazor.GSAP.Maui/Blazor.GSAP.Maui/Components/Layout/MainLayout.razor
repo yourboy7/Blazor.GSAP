@@ -1,3 +1,27 @@
 ﻿@inherits LayoutComponentBase
 
 @Body
+
+<button @onclick="HandleClick" class="nav-button">@_buttonContent</button>
+
+@code {
+
+    private string _buttonContent = "Next";
+
+    private async Task HandleClick() {
+        var relativePath = _navigationManager.ToBaseRelativePath(_navigationManager.Uri);
+        _buttonContent = relativePath switch
+        {
+            "" => "Last",
+            "split-text" => "Next",
+            _ => throw new Exception("Error")
+        };
+        _navigationManager.NavigateTo(relativePath switch
+        {
+            "" => "split-text",
+            "split-text" => "",
+            _ => throw new Exception("Error")
+        });
+    }
+
+}
