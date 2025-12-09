@@ -93,6 +93,113 @@ Inherit from `GsapComponentBase` in your Razor component (`.razor`).
 
 ---
 
+## 🔌 Plugin Usage
+
+Get started by creating a component that uses the **SplitText** plugin.
+
+### 1️⃣ Write your animation logic
+
+Create a JavaScript file with the **same name** as your component in the same directory.
+
+📄 **Pages/SplitText.razor.js**
+
+```javascript
+// Save instance state
+let splitInstance;
+let currentAnimation;
+
+function setup() {
+  // Revert existing instances to prevent duplicates
+  if (splitInstance) splitInstance.revert();
+  if (currentAnimation) currentAnimation.revert();
+
+  // Create a new SplitText instance
+  splitInstance = new SplitText(".text", { type: "chars,words,lines" });
+}
+
+export function init() {
+  // ✅ Register the plugin
+  gsap.registerPlugin(SplitText);
+  setup();
+  window.addEventListener("resize", setup);
+}
+
+export function animateChars() {
+  if (currentAnimation) currentAnimation.revert();
+
+  currentAnimation = gsap.from(splitInstance.chars, {
+    x: 150,
+    opacity: 0,
+    duration: 0.7,
+    ease: "power4",
+    stagger: 0.04,
+  });
+}
+```
+
+### 2️⃣ Create your component (C\# Code-behind)
+
+Create a `.razor.cs` partial class to handle logic. This is where you define which GSAP plugins are required.
+
+📄 **Pages/SplitText.razor.cs**
+
+```csharp
+using Microsoft.JSInterop;
+
+namespace YourNamespace.Pages;
+
+public partial class SplitText
+{
+    /// <summary>
+    /// 🔌 Define required plugins here.
+    /// The base class ensures these are loaded before OnGsapLoadedAsync is called.
+    /// </summary>
+    protected override GsapPlugin[] RequiredPlugins { get; } = [GsapPlugin.SplitText];
+
+    /// <summary>
+    /// 🚀 Lifecycle hook invoked after GSAP and your JS module are loaded.
+    /// </summary>
+    protected override async Task OnGsapLoadedAsync()
+    {
+        // Initialize your GSAP logic (e.g., registering plugins, setting up timelines)
+        await JSModule.InvokeVoidAsync("init");
+    }
+
+    private async Task AnimateChars()
+    {
+        await JSModule.InvokeVoidAsync("animateChars");
+    }
+}
+```
+
+### 3️⃣ Create your view (Razor)
+
+Inherit from `GsapComponentBase` in your Razor component.
+
+📄 **Pages/SplitText.razor**
+
+```razor
+@page "/split-text"
+@inherits GsapComponentBase
+
+<div class="container">
+    <button @onclick="AnimateChars">Animate Characters</button>
+
+    <div class="text">
+        Break apart HTML text into characters, words, and/or lines for easy animation.
+    </div>
+</div>
+```
+
+4️⃣ That's it!
+By specifying RequiredPlugins, you unlock the full power of GSAP's ecosystem with zero boilerplate:
+
+- ✅ Automatic Script Loading: The library dynamically injects the necessary plugin scripts (like SplitText.min.js) only when needed, keeping your index.html clean.
+- ✅ Guaranteed Initialization: The OnGsapLoadedAsync hook ensures that both the core GSAP library and your requested plugins are fully loaded before your animation logic runs.
+- ✅ Memory Safe: Just like the core library, plugin instances and timelines are cleaned up automatically when the component is disposed.
+
+---
+
 ## ⚙️ How it works
 
 ### 💉 Dynamic Injection
